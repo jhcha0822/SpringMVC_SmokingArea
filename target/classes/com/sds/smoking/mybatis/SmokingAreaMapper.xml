@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SmokingArea">
+
+	<select id="selectAll"  resultType="SmokingArea">
+		select * from smokingarea;
+	</select>
+	
+	<select id="select" parameterType="int" resultType="SmokingArea">
+		select * from smokingarea where smokingarea_idx=#{smokingarea_idx}
+	</select>
+	
+	<insert id="insert" parameterType="SmokingArea">
+		insert into smokingarea(area_nm, area_desc, ctprvnnm, signgunm, emdnm, area_se, area_ar, rdnmadr, lnmadr, inst_nm, latitude, longitude, ref_date, fclty_knd)
+		values(#{area_nm}, #{area_desc}, #{ctprvnnm}, #{signgunm}, #{emdnm}, #{area_se}, #{area_ar}, #{rdnmadr}, #{lnmadr}, #{inst_nm}, #{latitude}, #{longitude}, #{ref_date}, #{fclty_knd})
+	</insert>
+
+</mapper>

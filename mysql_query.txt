@@ -1,0 +1,20 @@
+mysql> use web;
+Database changed
+mysql> create table smokingarea(
+    ->  smokingarea_idx int primary key auto_increment
+    ->  , id varchar(20)
+    ->  , area_nm varchar(50)
+    ->  , area_desc varchar(200)
+    ->  , ctprvnnm varchar(20)
+    ->  , signgunm varchar(20)
+    ->  , emdnm varchar(20)
+    ->  , area_se varchar(200)
+    ->  , area_ar float(8)
+    ->  , rdnmadr varchar(200)
+    ->  , lnmadr varchar(200)
+    ->  , inst_nm varchar(20)
+    ->  , latitude float(17)
+    ->  , longitude float(17)
+    ->  , ref_date varchar(200)
+    ->  , fclty_knd varchar(200)
+    -> ) default character set utf8;
