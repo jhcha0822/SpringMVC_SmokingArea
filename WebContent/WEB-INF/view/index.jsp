@@ -1,12 +1,15 @@
+<%@page import="com.sds.smoking.common.Pager"%>
 <%@page import="com.sds.smoking.domain.SmokingArea"%>
 <%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%!
 	// 선언 영역
+	// Pager pager = new Pager();
 %>
 <%
 	// 메소드 영역
 	List<SmokingArea> smokingAreaList = (List<SmokingArea>)request.getAttribute("smokingAreaList");
+	// pager.init(smokingAreaList, request); // 페이징 처리
 %>
 <!DOCTYPE html>
 <html>
@@ -19,6 +22,8 @@
 </style>
 </head>
 <script type="text/javascript">
+
+	let map;
 
 	function deg2rad(deg) {
 		return deg * (Math.PI/180);
@@ -55,8 +60,13 @@
 		table.appendChild(tbody);
 	}
 	
-	let map;
-	
+	function hideTable(n) { // 가장 가까운 테이블 n개만 보여주기
+		let table = document.getElementById("table");
+		for(let i=table.rows.length; i>n; i--) {
+			table.deleteRow(-1); // 하단 행 삭제
+		}
+	}
+
 	// map 초기화
 	function initMap() {
 		let mapProp= {
@@ -82,7 +92,7 @@
 	
 	// 버튼 누를때 동작
 	function search() {
-		// 검색한 위치로 지도 중앙값 설정
+		// 검색한 위치로 지도 중앙값 설정, 마커 띄우기
 		createMarker($("#lati").val(), $("#longi").val(), "현 위치");
 		// 흡연구역 목록 DB에서 가져오기
 		$.ajax({
@@ -97,18 +107,45 @@
 					table += "<td>"+json.area_nm+"</td>";
 					table += "<td>"+json.area_desc+"</td>";
 					table += "<td>"+Haversine_formula($("#lati").val(), $("#longi").val(), json.latitude, json.longitude)+"</td>";
+					// 안보이게 위도와 경도도 넣기
+					table += "<td style='visibility:hidden; position:absolute;'>"+json.latitude+"</td>";
+					table += "<td style='visibility:hidden; position:absolute;'>"+json.longitude+"</td>";
 					table += "</tr>";
 				}
 				$("#table").html(table); 
-				sortTable(2); // 거리순 정렬
+				sortTable(2);  // 거리순 정렬
+				hideTable(10); // 가장 가까운 10건만 보여주기
 				$("#spin").toggleClass("spinner-border spinner-border-sm");
 			}
 		});
-		
-		
 	}
 	
-	$(function(){
+	/*
+	// 한 건의 상세 데이터를 받아오기 위한 함수
+	function getPosition() {
+		let table = document.getElementById("areaList");
+		let rowList = table.rows;
+		
+		for(i=1; i<rowLst.length; i++) { // thead 제외
+			let row = rowList[i];
+			row.onclick = function(){
+				return function(){
+					let name = this.cells[0];
+					let detail = this.cells[1];
+					let dist = this.cells[2];
+					let lati = this.cells[3];
+					let longi = this.cells[4];
+					// 마커 띄우기
+					createMarker(lati, longi, name);
+				}; // return end
+			}(row); // onclick end
+		} // for end
+	} // function end
+	*/
+	
+	let latitest;
+	
+	$(function(){ // $( document ).ready( function(){} );
 		// (위도,경도)를 붙여넣는 텍스트필드에 키보드에서 손을 떼면
 		// 문자열을 분리하여 위도와 경도 텍스트필드에 출력
 		$("#mock").on("keyup", function(){
@@ -127,18 +164,26 @@
 			search(); // DB 값 읽어오기
 			$("#spin").toggleClass("spinner-border spinner-border-sm");
 		});
-	});
-	
-	// 한 건의 상세 데이터를 받아오기 위한 함수
-	$("#areaList").click(function(){ 	
-		// 현재 클릭된 Row(<tr>)
-		var tr = $(this);
-		var td = tr.children();
 		
-		// td.eq(index)로 값 받아오기
-		let name = td.eq(0).text();
-		let detail = td.eq(1).text();
-		let dist = td.eq(2).text();
+		$("#table").click(function(){
+			let rowList =  this.rows;
+			// console.log("rowList", rowList);
+			
+			for (i=0; i<rowList.length; i++) {
+				var row = rowList[i];
+				var tdsNum = row.childElementCount;
+				
+				row.onclick = function() {
+			          return function() {
+			        	  let name = this.cells[0].innerHTML;
+			        	  let lati = this.cells[3].innerHTML;
+			        	  let longi = this.cells[4].innerHTML;
+			        	  createMarker(lati, longi, name);
+			          };
+			   	}(row);
+			}
+		});
+		
 	});
 	
 </script>
